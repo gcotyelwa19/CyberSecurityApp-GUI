@@ -26,13 +26,23 @@ East London, South Africa
 ** Project Structure
 CyberSecurityApp/
 ├── MainWindow.xaml
+
 ├── MainWindow.xaml.cs
+
 ├── ChatBot.cs
+
 ├── KeywordResponder.cs
+
 ├── SentimentDetector.cs
+
 ├── MemoryStore.cs
+
 ├── AudioPlayer.cs
+
 ├── AssemblyInfo.cs
+
 ├── greeting(1).wav
+
 ├── README.md
+
 └── .github/workflows/build.yml
