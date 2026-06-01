@@ -24,7 +24,8 @@ East London, South Africa
 
 ---
 ** Project Structure
-CyberSecurityApp/
+CyberSecurityApp-GUI
+
 ├── MainWindow.xaml
 
 ├── MainWindow.xaml.cs
