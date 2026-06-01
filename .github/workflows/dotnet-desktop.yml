@@ -1,4 +1,4 @@
-# This workflow uses actions that are not certified by GitHub.
+## This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
@@ -58,11 +58,11 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Restore dependencies
-      run: dotnet restore CyberSecurityChatbot.sln
+      run: dotnet restore CyberSecurityChatbot.slnx
 
     - name: Build
-      run: dotnet build CyberSecurityChatbot.sln --configuration Release --no-restore
+      run: dotnet build CyberSecurityChatbot.slnx --configuration Release --no-restore
 
     # Optional: only if you have a test project
     - name: Run tests
-      run: dotnet test CyberSecurityChatbot.sln --no-build --verbosity normal
+      run: dotnet test CyberSecurityChatbot.slnx --no-build --verbosity normal
