@@ -12,7 +12,8 @@ namespace CyberSecurityChatbot
         {
             InitializeComponent();
             _chatBot = new ChatBot();
-            QuestionsList.ItemsSource = _chatBot.GetAllKeywordsList();
+            QuestionsList.ItemsSource = _chatBot.GetAllKeywordsList(); 
+            TestTaskStorage(); // temporary test
 
 
             // Wire events programmatically to avoid generated partial class issues
@@ -49,6 +50,34 @@ namespace CyberSecurityChatbot
                 AppendBotMessage("[Voice greeting missing or failed to play]");
             }
         }
+
+        private void TestTaskStorage()
+        {
+            TaskStorageHelper helper = new TaskStorageHelper();
+
+            // Add two tasks
+            helper.AddTask("Enable two-factor authentication",
+                           "Set up 2FA on all important accounts",
+                           "Remind me in 5 days");
+
+            helper.AddTask("Review privacy settings",
+                           "Review account privacy settings",
+                           "");
+
+            // Mark the first task as complete
+            helper.MarkAsComplete(1);
+
+            // Delete the second task
+            helper.DeleteTask(2);
+
+            // Load tasks back and print them
+            var tasks = helper.LoadTasks();
+            foreach (var task in tasks)
+            {
+                Console.WriteLine($"{task.Id}: {task.Title} - Complete? {task.IsComplete}");
+            }
+        }
+
 
 
         private void LoadAsciiArt()
