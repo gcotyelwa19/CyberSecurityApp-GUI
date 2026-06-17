@@ -70,3 +70,32 @@
         </StackPanel>
     </Grid>
 </Window>
+    
+<TabItem Header="Task Assistant">
+    <Grid Margin="10">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBox x:Name="TaskTitleBox" Width="150" PlaceholderText="Title" Margin="0,0,10,0"/>
+            <TextBox x:Name="TaskDescriptionBox" Width="200" PlaceholderText="Description" Margin="0,0,10,0"/>
+            <TextBox x:Name="TaskReminderBox" Width="150" PlaceholderText="Reminder"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Add Task" Click="AddTask_Click" Margin="0,0,10,0"/>
+            <Button Content="Complete Task" Click="CompleteTask_Click" Margin="0,0,10,0"/>
+            <Button Content="Delete Task" Click="DeleteTask_Click"/>
+        </StackPanel>
+
+        <ListView x:Name="TaskListView">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="40"/>
+                    <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}" Width="150"/>
+                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="200"/>
+                    <GridViewColumn Header="Reminder" DisplayMemberBinding="{Binding Reminder}" Width="150"/>
+                    <GridViewColumn Header="Complete" DisplayMemberBinding="{Binding IsComplete}" Width="80"/>
+                    <GridViewColumn Header="Created At" DisplayMemberBinding="{Binding CreatedAt}" Width="120"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</TabItem>
