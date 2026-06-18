@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CyberSecurityChatbot
 {
@@ -7,12 +9,14 @@ namespace CyberSecurityChatbot
         private KeywordResponder _responder;
         private SentimentDetector _sentiment;
         private MemoryStore _memory;
+        private TaskManager _taskManager;
 
         public ChatBot()
         {
             _responder = new KeywordResponder();
             _sentiment = new SentimentDetector();
             _memory = new MemoryStore();
+            _taskManager = new TaskManager();
         }
 
         public string GetGreeting()
@@ -74,7 +78,7 @@ namespace CyberSecurityChatbot
             if (lower.Contains("purpose"))
                 return "🎯 My purpose is to help you learn about cybersecurity best practices.";
             string personalisedOpener = _memory.GetPersonalisedOpener();
-            
+
             // 6. Default fallback
             return $"{sentimentResponse}{personalisedOpener}{keywordResponse}";
         }
@@ -83,5 +87,32 @@ namespace CyberSecurityChatbot
         {
             return _responder.GetKeywordsList();
         }
+
+        public string GetResponse(string userMessage)
+        {
+            // Normalize input
+            string lowerMsg = userMessage.ToLower();
+
+            // --- TASK TRIGGER ---
+            if (lowerMsg.Contains("task"))
+            {
+                // Get current tasks
+                var tasks = _taskManager.GetAllTasks();
+
+                // Format task list nicely
+                string taskList = tasks.Count == 0
+                    ? "You currently have no tasks."
+                    : string.Join("\n", tasks.Select(t =>
+                        $"{t.Id}. {t.Title} - {(t.IsComplete ? "✅ Complete" : "❌ Incomplete")}"));
+
+                // Respond with prompt + list
+                return $"What task would you like to add, {_memory.UserName}? \nHere are your current tasks:\n{taskList}";
+            }
+
+            // --- Other chatbot logic here ---
+            // e.g. keyword detection for greetings, quiz, etc.
+            return _responder.GetResponse(userMessage);
+        }
+
     }
 }

@@ -33,6 +33,8 @@ namespace CyberSecurityChatbot
 
             // Populate questions list with available keywords
             QuestionsList.ItemsSource = _chatBot.GetAllKeywordsList();
+            // Load saved tasks into the TaskListView (if present)
+            RefreshTasksDisplay();
         }
         private void PlayVoiceGreeting()
         {
@@ -154,6 +156,28 @@ namespace CyberSecurityChatbot
             ChatScrollViewer?.ScrollToEnd();
         }
 
+        // Handler for adding a new task from the UI. If you have UI inputs for
+        // title/description/due date replace the placeholder values below.
+        private void AddTask_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Placeholder values; replace with actual input control values when available
+                string title = "New Task";
+                string description = "Created from UI";
+                string due = string.Empty;
+
+                var helper = new TaskStorageHelper();
+                helper.AddTask(title, description, due);
+
+                AppendBotMessage("✅ Task added.");
+            }
+            catch (System.Exception ex)
+            {
+                AppendBotMessage($"❌ Failed to add task: {ex.Message}");
+            }
+        }
+
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             AppendBotMessage("↩️ Going back to the previous step...");
@@ -176,6 +200,69 @@ namespace CyberSecurityChatbot
             else
             {
                 AppendBotMessage("👍 Okay, let’s keep chatting!");
+            }
+        }
+
+        // Refresh the tasks shown in the UI from storage
+        private void RefreshTasksDisplay()
+        {
+            try
+            {
+                var helper = new TaskStorageHelper();
+                var tasks = helper.LoadTasks();
+                if (TaskListView != null)
+                {
+                    TaskListView.ItemsSource = null;
+                    TaskListView.ItemsSource = tasks;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                AppendBotMessage($"❌ Failed to load tasks: {ex.Message}");
+            }
+        }
+
+        private void CompleteTask_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (TaskListView?.SelectedItem is CyberTask selected)
+                {
+                    var helper = new TaskStorageHelper();
+                    helper.MarkAsComplete(selected.Id);
+                    AppendBotMessage($"✅ Marked task #{selected.Id} as complete.");
+                    RefreshTasksDisplay();
+                }
+                else
+                {
+                    AppendBotMessage("⚠️ Please select a task to complete.");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                AppendBotMessage($"❌ Failed to complete task: {ex.Message}");
+            }
+        }
+
+        private void DeleteTask_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (TaskListView?.SelectedItem is CyberTask selected)
+                {
+                    var helper = new TaskStorageHelper();
+                    helper.DeleteTask(selected.Id);
+                    AppendBotMessage($"🗑️ Deleted task #{selected.Id}.");
+                    RefreshTasksDisplay();
+                }
+                else
+                {
+                    AppendBotMessage("⚠️ Please select a task to delete.");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                AppendBotMessage($"❌ Failed to delete task: {ex.Message}");
             }
         }
 

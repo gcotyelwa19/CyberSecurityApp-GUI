@@ -5,97 +5,104 @@
         Height="600" Width="800"
         Background="Beige">
 
+    <TabControl>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <!-- Header -->
-            <RowDefinition Height="*"/>
-            <!-- Chat history -->
-            <RowDefinition Height="Auto"/>
-            <!-- Questions list -->
-            <RowDefinition Height="Auto"/>
-            <!-- Input + buttons -->
-        </Grid.RowDefinitions>
+        <!-- Chat Tab -->
+        <TabItem Header="Chat">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <!-- New Questions List -->
-        <ListView x:Name="QuestionsList" Grid.Row="2" Margin="10" Height="120">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding}" FontFamily="Segoe UI" FontSize="14" Foreground="Cyan"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        
-        <!-- ASCII Art Display -->
-        <TextBlock x:Name="AsciiArtDisplay"
-                   Grid.Row="0"
-                   TextAlignment="Center"
-                   Foreground="Navy"
-                   FontFamily="Consolas"
-                   FontSize="14"
-                   TextWrapping="Wrap"
-                   Margin="10"/>
+                <!-- ASCII Art Display -->
+                <TextBlock x:Name="AsciiArtDisplay"
+                           Grid.Row="0"
+                           TextAlignment="Center"
+                           Foreground="Navy"
+                           FontFamily="Consolas"
+                           FontSize="14"
+                           TextWrapping="Wrap"
+                           Margin="10"/>
 
-        <!-- Chat history inside scroll viewer -->
-        <ScrollViewer x:Name="ChatScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="10">
-            <TextBlock x:Name="ChatDisplay"
-                       TextWrapping="Wrap"
-                       Foreground="Purple"
-                       FontFamily="Segoe UI"
-                       FontSize="14"/>
-        </ScrollViewer>
+                <!-- Chat history inside scroll viewer -->
+                <ScrollViewer x:Name="ChatScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="10">
+                    <TextBlock x:Name="ChatDisplay"
+                               TextWrapping="Wrap"
+                               Foreground="Purple"
+                               FontFamily="Segoe UI"
+                               FontSize="14"/>
+                </ScrollViewer>
 
-        <!-- Input row -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
-            <TextBox x:Name="UserInput"
-                     Width="400"
-                     FontFamily="Segoe UI"
-                     FontSize="14"
-                     Foreground="Black"/>
-            <Button x:Name="SendButton"
-                    Content="Send"
-                    Width="100"
-                    Margin="10,0,0,0"
-                    Background="DarkCyan"
-                    Foreground="White"
-                    FontWeight="Bold" Height="40"/>
-            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-                <Button x:Name="BackButton" Content="⬅️ Back" Width="100" Height="40" Margin="5" Background="DarkCyan" Foreground="White"/>
-                <Button x:Name="ExitButton" Content="❌ Exit" Width="100" Height="40" Margin="5" Background="DarkCyan" Foreground="White"/>
-            </StackPanel>
+                <!-- New Questions List -->
+                <ListView x:Name="QuestionsList" Grid.Row="2" Margin="10" Height="120">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" FontFamily="Segoe UI" FontSize="14" Foreground="Cyan"/>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
 
+                <!-- Input row -->
+                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="10">
+                    <TextBox x:Name="UserInput"
+                             Width="400"
+                             FontFamily="Segoe UI"
+                             FontSize="14"
+                             Foreground="Black"
+                             ToolTip="Enter message"/>
+                    <Button x:Name="SendButton"
+                            Content="Send"
+                            Width="100"
+                            Margin="10,0,0,0"
+                            Background="DarkCyan"
+                            Foreground="White"
+                            FontWeight="Bold" Height="40"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0,0,0">
+                        <Button x:Name="BackButton" Content="⬅️ Back" Width="100" Height="40" Margin="5" Background="DarkCyan" Foreground="White"/>
+                        <Button x:Name="ExitButton" Content="❌ Exit" Width="100" Height="40" Margin="5" Background="DarkCyan" Foreground="White"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </TabItem>
 
+        <!-- Task Assistant Tab -->
+        <TabItem Header="Task Assistant">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-        </StackPanel>
-    </Grid>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10" Grid.Row="0">
+                    <TextBox x:Name="TaskTitleBox" Width="150" ToolTip="Title" Margin="0,0,10,0"/>
+                    <TextBox x:Name="TaskDescriptionBox" Width="200" ToolTip="Description" Margin="0,0,10,0"/>
+                    <TextBox x:Name="TaskReminderBox" Width="150" ToolTip="Reminder"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10" Grid.Row="1">
+                    <Button Content="Add Task" Click="AddTask_Click" Margin="0,0,10,0"/>
+                    <Button Content="Complete Task" Click="CompleteTask_Click" Margin="0,0,10,0"/>
+                    <Button Content="Delete Task" Click="DeleteTask_Click"/>
+                </StackPanel>
+
+                <ListView x:Name="TaskListView" Grid.Row="2">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="40"/>
+                            <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}" Width="150"/>
+                            <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="200"/>
+                            <GridViewColumn Header="Reminder" DisplayMemberBinding="{Binding Reminder}" Width="150"/>
+                            <GridViewColumn Header="Complete" DisplayMemberBinding="{Binding IsComplete}" Width="80"/>
+                            <GridViewColumn Header="Created At" DisplayMemberBinding="{Binding CreatedAt}" Width="120"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Grid>
+        </TabItem>
+
+    </TabControl>
 </Window>
-    
-<TabItem Header="Task Assistant">
-    <Grid Margin="10">
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBox x:Name="TaskTitleBox" Width="150" PlaceholderText="Title" Margin="0,0,10,0"/>
-            <TextBox x:Name="TaskDescriptionBox" Width="200" PlaceholderText="Description" Margin="0,0,10,0"/>
-            <TextBox x:Name="TaskReminderBox" Width="150" PlaceholderText="Reminder"/>
-        </StackPanel>
-
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="Add Task" Click="AddTask_Click" Margin="0,0,10,0"/>
-            <Button Content="Complete Task" Click="CompleteTask_Click" Margin="0,0,10,0"/>
-            <Button Content="Delete Task" Click="DeleteTask_Click"/>
-        </StackPanel>
-
-        <ListView x:Name="TaskListView">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="40"/>
-                    <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Title}" Width="150"/>
-                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="200"/>
-                    <GridViewColumn Header="Reminder" DisplayMemberBinding="{Binding Reminder}" Width="150"/>
-                    <GridViewColumn Header="Complete" DisplayMemberBinding="{Binding IsComplete}" Width="80"/>
-                    <GridViewColumn Header="Created At" DisplayMemberBinding="{Binding CreatedAt}" Width="120"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-    </Grid>
-</TabItem>

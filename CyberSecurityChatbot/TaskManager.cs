@@ -4,7 +4,8 @@ using System.Text;
 
 namespace CyberSecurityChatbot
 {
-    public class TaskManager {
+    public class TaskManager
+    {
         private TaskStorageHelper storage = new TaskStorageHelper();
 
         public string AddTask(string title, string description, string reminder)
@@ -31,3 +32,5 @@ namespace CyberSecurityChatbot
             ActivityLogger.Log($"Task {id} deleted.");
         }
     }
+
+}
