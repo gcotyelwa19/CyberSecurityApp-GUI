@@ -38,6 +38,7 @@ namespace CyberSecurityChatbot
             // Load saved tasks into the TaskListView (if present)
             RefreshTasksDisplay();
         }
+
         private void PlayVoiceGreeting()
         {
             try
@@ -289,5 +290,96 @@ namespace CyberSecurityChatbot
             }
         }
 
+    private QuizManager quizManager = new QuizManager();
+    private QuizQuestion currentQuestion;
+
+        private void StartQuiz()
+        {
+            currentQuestion = quizManager.GetNextQuestion();
+
+            if (currentQuestion != null)
+            {
+                QuizQuestionBlock.Text = currentQuestion.Question;
+                FeedbackBlock.Text = "";
+                NextQuestionButton.Visibility = Visibility.Collapsed;
+
+                // Reset options
+                OptionA.Visibility = Visibility.Visible;
+                OptionB.Visibility = Visibility.Visible;
+                OptionC.Visibility = Visibility.Visible;
+                OptionD.Visibility = Visibility.Visible;
+
+                OptionA.IsChecked = false;
+                OptionB.IsChecked = false;
+                OptionC.IsChecked = false;
+                OptionD.IsChecked = false;
+
+                QuizScoreBlock.Text = $"Score: {quizManager.GetScore()} / {quizManager.GetTotalQuestions()}";
+            }
+            else
+            {
+                FinalResultsBlock.Visibility = Visibility.Visible;
+                FinalResultsBlock.Text = $"🎉 Quiz finished!\n" +
+                                         $"Final Score: {quizManager.GetScore()} / {quizManager.GetTotalQuestions()}\n" +
+                                         $"Completed on: {DateTime.Now:dddd, dd MMMM yyyy HH:mm}";
+
+                QuizQuestionBlock.Text = "";
+                OptionA.Visibility = Visibility.Collapsed;
+                OptionB.Visibility = Visibility.Collapsed;
+                OptionC.Visibility = Visibility.Collapsed;
+                OptionD.Visibility = Visibility.Collapsed;
+                SubmitAnswerButton.Visibility = Visibility.Collapsed;
+                NextQuestionButton.Visibility = Visibility.Collapsed;
+                HintButton.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void SubmitAnswer_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedAnswer = null;
+
+            if (OptionA.IsChecked == true) selectedAnswer = OptionA.Content.ToString();
+            else if (OptionB.IsChecked == true) selectedAnswer = OptionB.Content.ToString();
+            else if (OptionC.IsChecked == true) selectedAnswer = OptionC.Content.ToString();
+            else if (OptionD.IsChecked == true) selectedAnswer = OptionD.Content.ToString();
+
+            if (selectedAnswer == null)
+            {
+                FeedbackBlock.Text = "⚠️ Please select an answer.";
+                return;
+            }
+
+            quizManager.CheckAnswer(selectedAnswer);
+
+            if (selectedAnswer.Equals(currentQuestion.CorrectAnswer, StringComparison.OrdinalIgnoreCase))
+                FeedbackBlock.Text = $"✅ Correct! {currentQuestion.CorrectAnswer}";
+            else
+                FeedbackBlock.Text = $"❌ Incorrect. The correct answer is: {currentQuestion.CorrectAnswer}";
+
+            NextQuestionButton.Visibility = Visibility.Visible;
+            QuizScoreBlock.Text = $"Score: {quizManager.GetScore()} / {quizManager.GetTotalQuestions()}";
+        }
+
+        private void NextQuestion_Click(object sender, RoutedEventArgs e)
+        {
+            StartQuiz();
+        }
+
+        private void HintButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentQuestion != null && !string.IsNullOrEmpty(currentQuestion.Clue))
+                FeedbackBlock.Text = $"💡 Hint: {currentQuestion.Clue}";
+            else
+                FeedbackBlock.Text = "No hint available for this question.";
+        }
+
+        private void RestartQuiz_Click(object sender, RoutedEventArgs e)
+        {
+            quizManager.RestartQuiz();
+            FinalResultsBlock.Visibility = Visibility.Collapsed;
+            SubmitAnswerButton.Visibility = Visibility.Visible;
+        }
+
     }
+
 }

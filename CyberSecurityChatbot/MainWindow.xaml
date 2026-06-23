@@ -103,6 +103,55 @@
                 </ListView>
             </Grid>
         </TabItem>
+        <TabItem Header="Quiz">
+            <Grid Margin="10">
+                <!-- Current Question -->
+                <TextBlock x:Name="QuizQuestionBlock"
+                   FontSize="18"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,15"/>
+
+                <!-- Answer Options -->
+                <StackPanel x:Name="AnswerOptionsPanel"
+                    Orientation="Vertical"
+                    Margin="0,0,0,15">
+                    <RadioButton x:Name="OptionA" Content="Option A" Visibility="Collapsed" GroupName="QuizOptions"/>
+                    <RadioButton x:Name="OptionB" Content="Option B" Visibility="Collapsed" GroupName="QuizOptions"/>
+                    <RadioButton x:Name="OptionC" Content="Option C" Visibility="Collapsed" GroupName="QuizOptions"/>
+                    <RadioButton x:Name="OptionD" Content="Option D" Visibility="Collapsed" GroupName="QuizOptions"/>
+                </StackPanel>
+
+                <!-- Buttons -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                    <Button x:Name="SubmitAnswerButton" Content="Submit Answer" Click="SubmitAnswer_Click" Width="120" Margin="0,0,10,0"/>
+                    <Button x:Name="NextQuestionButton" Content="Next Question" Click="NextQuestion_Click" Width="120" Visibility="Collapsed"/>
+                    <Button x:Name="HintButton" Content="Hint" Click="HintButton_Click" Width="80" Margin="10,0,0,0"/>
+                    <Button x:Name="RestartQuizButton" Content="Restart Quiz" Click="RestartQuiz_Click" Width="120" Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <!-- Feedback Area -->
+                <TextBlock x:Name="FeedbackBlock"
+                   FontSize="14"
+                   Foreground="DarkBlue"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,15"/>
+
+                <!-- Score Tracker -->
+                <TextBlock x:Name="QuizScoreBlock"
+                   FontSize="14"
+                   FontWeight="Bold"
+                   Foreground="DarkGreen"
+                   Margin="0,0,0,15"/>
+
+                <!-- Final Results -->
+                <TextBlock x:Name="FinalResultsBlock"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Foreground="DarkRed"
+                   TextWrapping="Wrap"
+                   Visibility="Collapsed"/>
+            </Grid>
+        </TabItem>
 
     </TabControl>
 </Window>
