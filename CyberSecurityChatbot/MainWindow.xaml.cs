@@ -1,6 +1,8 @@
 ﻿using System.Media; // for greeting sound
 using System.Windows;
 using System.Windows.Input;
+using System.IO;
+using System.Linq;
 
 namespace CyberSecurityChatbot
 {
@@ -40,16 +42,37 @@ namespace CyberSecurityChatbot
         {
             try
             {
-                string path = System.IO.Path.Combine(
-                    System.AppDomain.CurrentDomain.BaseDirectory,
-                    "greeting(1).wav"
-                );
-                var player = new SoundPlayer(path);
+                string baseDir = System.AppDomain.CurrentDomain.BaseDirectory;
+
+                // Preferred filenames
+                string exact = Path.Combine(baseDir, "greeting(1).wav");
+                string alt = Path.Combine(baseDir, "greeting.wav");
+
+                // Find a matching file
+                string found = null;
+                if (File.Exists(exact))
+                    found = exact;
+                else if (File.Exists(alt))
+                    found = alt;
+                else
+                {
+                    var files = Directory.GetFiles(baseDir, "greeting*.wav");
+                    if (files != null && files.Length > 0)
+                        found = files.First();
+                }
+
+                if (string.IsNullOrEmpty(found))
+                {
+                    AppendBotMessage("[Voice greeting file not found in output folder]");
+                    return;
+                }
+
+                var player = new SoundPlayer(found);
                 player.Play();
             }
-            catch
+            catch (Exception ex)
             {
-                AppendBotMessage("[Voice greeting missing or failed to play]");
+                AppendBotMessage($"[Voice greeting failed: {ex.Message}]");
             }
         }
 

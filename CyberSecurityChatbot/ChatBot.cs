@@ -45,7 +45,7 @@ namespace CyberSecurityChatbot
                 return $"👋 Nice to meet you, {name}! How can I help with cybersecurity today?";
             }
 
-            // 1.0 Handling favourite topic input (accept with or without apostrophe)
+            // 1.0 Handling favourite topic input
             if (lower.StartsWith("i'm interested in") || lower.StartsWith("im interested in"))
             {
                 int offset = lower.StartsWith("i'm interested in") ? "i'm interested in".Length : "im interested in".Length;
@@ -77,6 +77,7 @@ namespace CyberSecurityChatbot
                 return "🛡️ I can explain cybersecurity topics like phishing, firewalls, VPNs, and more.";
             if (lower.Contains("purpose"))
                 return "🎯 My purpose is to help you learn about cybersecurity best practices.";
+
             string personalisedOpener = _memory.GetPersonalisedOpener();
 
             // 6. Default fallback
@@ -90,29 +91,55 @@ namespace CyberSecurityChatbot
 
         public string GetResponse(string userMessage)
         {
-            // Normalize input
             string lowerMsg = userMessage.ToLower();
 
             // --- TASK TRIGGER ---
             if (lowerMsg.Contains("task"))
             {
-                // Get current tasks
-                var tasks = _taskManager.GetAllTasks();
+                // Case 1: Add task directly
+                if (lowerMsg.StartsWith("add task"))
+                {
+                    string[] parts = userMessage.Split('-', 2);
+                    string title = parts.Length > 1 ? parts[1].Trim() : "New Task";
 
-                // Format task list nicely
+                    _taskManager.AddTask(title, "Created from chat", "");
+                    return $"✅ Task added: '{title}'. Would you like to set a reminder, {_memory.UserName}?";
+                }
+
+                // Case 2: Complete task by ID
+                if (lowerMsg.StartsWith("complete task"))
+                {
+                    string[] words = lowerMsg.Split(' ');
+                    if (words.Length >= 3 && int.TryParse(words[2], out int id))
+                    {
+                        _taskManager.MarkAsComplete(id);
+                        return $"✔️ Task {id} marked as complete.";
+                    }
+                }
+
+                // Case 3: Delete task by ID
+                if (lowerMsg.StartsWith("delete task"))
+                {
+                    string[] words = lowerMsg.Split(' ');
+                    if (words.Length >= 3 && int.TryParse(words[2], out int id))
+                    {
+                        _taskManager.DeleteTask(id);
+                        return $"🗑️ Task {id} deleted.";
+                    }
+                }
+
+                // Case 4: General mention of "task" → show list
+                var tasks = _taskManager.GetAllTasks();
                 string taskList = tasks.Count == 0
                     ? "You currently have no tasks."
                     : string.Join("\n", tasks.Select(t =>
                         $"{t.Id}. {t.Title} - {(t.IsComplete ? "✅ Complete" : "❌ Incomplete")}"));
 
-                // Respond with prompt + list
                 return $"What task would you like to add, {_memory.UserName}? \nHere are your current tasks:\n{taskList}";
             }
 
-            // --- Other chatbot logic here ---
-            // e.g. keyword detection for greetings, quiz, etc.
+            // --- Other chatbot logic ---
             return _responder.GetResponse(userMessage);
         }
-
     }
 }
