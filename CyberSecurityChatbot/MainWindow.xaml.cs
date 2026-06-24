@@ -1,8 +1,10 @@
 ﻿using System.Media; // for greeting sound
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Controls;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace CyberSecurityChatbot
 {
@@ -37,6 +39,25 @@ namespace CyberSecurityChatbot
             QuestionsList.ItemsSource = _chatBot.GetAllKeywordsList();
             // Load saved tasks into the TaskListView (if present)
             RefreshTasksDisplay();
+
+            // Wire tab selection to lazily start the quiz when user opens the Quiz tab
+            if (MainTabControl != null)
+            {
+                MainTabControl.SelectionChanged += MainTabControl_SelectionChanged;
+                // If Quiz tab is already selected on startup, start quiz
+                if (MainTabControl.SelectedIndex == 2)
+                    StartQuiz();
+            }
+
+        }
+
+        private void MainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // If the Quiz tab is selected (index 2 in the TabControl), start the quiz
+            if (MainTabControl.SelectedIndex == 2)
+            {
+                StartQuiz();
+            }
         }
 
         private void PlayVoiceGreeting()
@@ -313,6 +334,46 @@ namespace CyberSecurityChatbot
                 OptionB.IsChecked = false;
                 OptionC.IsChecked = false;
                 OptionD.IsChecked = false;
+
+                // Populate options: include correct answer + up to 3 random distractors
+                try
+                {
+                    var allAnswers = quizManager.GetAllAnswers();
+                    // remove the correct one from distractors source
+                    var distractors = allAnswers.Where(a => !a.Equals(currentQuestion.CorrectAnswer, StringComparison.OrdinalIgnoreCase)).ToList();
+                    var rnd = new Random();
+                    // shuffle distractors
+                    distractors = distractors.OrderBy(x => rnd.Next()).ToList();
+
+                    var choices = new List<string> { currentQuestion.CorrectAnswer };
+                    foreach (var d in distractors.Take(3)) choices.Add(d);
+                    // shuffle final choices
+                    choices = choices.OrderBy(x => rnd.Next()).ToList();
+
+                    // Assign to option buttons (hide any extras if fewer than 4)
+                    var optionButtons = new[] { OptionA, OptionB, OptionC, OptionD };
+                    for (int i = 0; i < optionButtons.Length; i++)
+                    {
+                        if (i < choices.Count)
+                        {
+                            optionButtons[i].Content = choices[i];
+                            optionButtons[i].Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            optionButtons[i].Visibility = Visibility.Collapsed;
+                        }
+                    }
+                }
+                catch
+                {
+                    // If building options fails, fallback to a simple text feedback
+                    OptionA.Content = currentQuestion.CorrectAnswer;
+                    OptionA.Visibility = Visibility.Visible;
+                    OptionB.Visibility = Visibility.Collapsed;
+                    OptionC.Visibility = Visibility.Collapsed;
+                    OptionD.Visibility = Visibility.Collapsed;
+                }
 
                 QuizScoreBlock.Text = $"Score: {quizManager.GetScore()} / {quizManager.GetTotalQuestions()}";
             }

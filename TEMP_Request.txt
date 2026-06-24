@@ -1,0 +1,1 @@
+Requesting contents of ChatBot.cs to analyze and fix errors. Please provide file contents.

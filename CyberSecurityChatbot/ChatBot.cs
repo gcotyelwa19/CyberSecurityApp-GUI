@@ -29,12 +29,13 @@ namespace CyberSecurityChatbot
             return _memory?.UserName;
         }
 
-        public string ProcessInput(string input)
+        public string ProcessInput(string userInput)
         {
-            if (string.IsNullOrWhiteSpace(input))
+            if (string.IsNullOrWhiteSpace(userInput))
                 return "Please enter a question.";
 
-            string lower = input.Trim().ToLowerInvariant();
+            string input = userInput.Trim();
+            string lower = input.ToLowerInvariant();
 
             // 1. Handle name input
             if (lower.StartsWith("my name is"))
@@ -60,12 +61,59 @@ namespace CyberSecurityChatbot
                 return $"🔎 Continuing on {_memory.LastTopic}: {_responder.GetResponse(_memory.LastTopic)}";
             }
 
+            // --- Step 1: Detect Add Task intent ---
+            if (lower.Contains("add task") || lower.Contains("add a task") ||
+                lower.Contains("create task") || lower.Contains("enable") || lower.Contains("set up") || lower.Contains("i need to"))
+            {
+                string taskName = ExtractTaskName(lower);
+                // prefer instance _taskManager when available
+                try
+                {
+                    _taskManager.AddTask(taskName, "Created from chat", "");
+                }
+                catch
+                {
+                    // fallback to static if present
+                    try { TaskManager.AddTask(taskName); } catch { }
+                }
+                try { ActivityLogger.Log($"Task added: '{taskName}'"); } catch { }
+                return $"Task added: '{taskName}'. Would you like to set a reminder for this task?";
+            }
+
+            // --- Step 2: Detect Reminder intent ---
+            if (lower.Contains("remind me") || lower.Contains("reminder") ||
+                lower.Contains("set a reminder") || lower.Contains("remind me to") || lower.Contains("don't forget"))
+            {
+                string reminderText = ExtractReminderText(lower);
+                try { ReminderManager.SetReminder(reminderText, DateTime.Now.AddDays(1)); } catch { }
+                try { ActivityLogger.Log($"Reminder set for '{reminderText}' tomorrow."); } catch { }
+                return $"Reminder set for '{reminderText}' on tomorrow's date.";
+            }
+
             // 3. Sentiment detection
             Sentiment sentiment = _sentiment.Detect(input);
             string sentimentResponse = _sentiment.GetSentimentResponse(sentiment);
 
-            // 4. Keyword response
-            string keywordResponse = _responder.GetResponse(input);
+            // --- Step 3: Detect Quiz intent ---
+            if (lower.Contains("start quiz") || lower.Contains("take quiz") ||
+                lower.Contains("test my knowledge") || lower.Contains("quiz me") || lower.Contains("play the game"))
+            {
+                return "Starting the quiz now! 🎯";
+            }
+
+            // --- Step 4: Detect Log intent ---
+            if (lower.Contains("show activity log") || lower.Contains("what have you done") ||
+                lower.Contains("what did you do") || lower.Contains("show log") || lower.Contains("recent actions"))
+            {
+                try { return ActivityLogger.GetRecentLog(); } catch { return "No activity log available."; }
+            }
+
+            // 4. Keyword / cybersecurity topic response
+            if (lower.Contains("password") || lower.Contains("phishing") || lower.Contains("privacy") ||
+                lower.Contains("scam") || lower.Contains("malware") || lower.Contains("2fa"))
+            {
+                return _responder.GetResponse(input);
+            }
 
             // Save last topic for follow-ups
             _memory.LastTopic = input;
@@ -81,7 +129,44 @@ namespace CyberSecurityChatbot
             string personalisedOpener = _memory.GetPersonalisedOpener();
 
             // 6. Default fallback
+            string keywordResponse = _responder.GetResponse(input);
             return $"{sentimentResponse}{personalisedOpener}{keywordResponse}";
+        }
+
+        // Helper: crude extraction of task name from input
+        private string ExtractTaskName(string lowerInput)
+        {
+            string[] triggers = { "add task", "add a task", "create task", "i need to", "set up", "enable" };
+            foreach (var t in triggers)
+            {
+                int idx = lowerInput.IndexOf(t);
+                if (idx >= 0)
+                {
+                    int start = idx + t.Length;
+                    var rest = lowerInput.Substring(start).Trim(new char[] { ' ', ':', '-', '\'' , '"' });
+                    if (!string.IsNullOrEmpty(rest))
+                        return rest;
+                }
+            }
+            return "New Task";
+        }
+
+        // Helper: crude extraction of reminder text
+        private string ExtractReminderText(string lowerInput)
+        {
+            string[] triggers = { "remind me to", "remind me", "set a reminder for", "set a reminder" };
+            foreach (var t in triggers)
+            {
+                int idx = lowerInput.IndexOf(t);
+                if (idx >= 0)
+                {
+                    int start = idx + t.Length;
+                    var rest = lowerInput.Substring(start).Trim(new char[] { ' ', ':', '-' , '\'' , '"' });
+                    if (!string.IsNullOrEmpty(rest))
+                        return rest;
+                }
+            }
+            return "your task";
         }
 
         public List<string> GetAllKeywordsList()
@@ -142,4 +227,5 @@ namespace CyberSecurityChatbot
             return _responder.GetResponse(userMessage);
         }
     }
+
 }

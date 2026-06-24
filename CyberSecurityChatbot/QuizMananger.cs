@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace CyberSecurityChatbot
 {
@@ -47,9 +48,22 @@ namespace CyberSecurityChatbot
             return null;
         }
 
+        // Expose all correct answers so UI can build multiple-choice options
+        public List<string> GetAllAnswers()
+        {
+            return _questions.Select(q => q.CorrectAnswer).ToList();
+        }
+
         public void CheckAnswer(string answer)
         {
-            var current = _questions[_currentIndex - 1];
+            var current = GetCurrentQuestion();
+            if (current == null)
+            {
+                // No active question (GetNextQuestion wasn't called or quiz was restarted).
+                // Safely ignore the answer rather than throwing an out-of-range exception.
+                return;
+            }
+
             if (current.CorrectAnswer.Equals(answer, StringComparison.OrdinalIgnoreCase))
                 _score++;
         }
