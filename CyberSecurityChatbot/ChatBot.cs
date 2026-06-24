@@ -34,103 +34,51 @@ namespace CyberSecurityChatbot
             if (string.IsNullOrWhiteSpace(userInput))
                 return "Please enter a question.";
 
-            string input = userInput.Trim();
-            string lower = input.ToLowerInvariant();
+            string input = userInput.ToLower();
 
-            // 1. Handle name input
-            if (lower.StartsWith("my name is"))
+            // --- Step 1: Add Task intent ---
+            if (input.Contains("add task") || input.Contains("add a task") ||
+                input.Contains("create task") || input.Contains("enable") || input.Contains("set up") || input.Contains("i need to"))
             {
-                const string pattern = "my name is";
-                string name = input.Substring(pattern.Length).Trim();
-                _memory.UserName = name;
-                return $"👋 Nice to meet you, {name}! How can I help with cybersecurity today?";
-            }
-
-            // 1.0 Handling favourite topic input
-            if (lower.StartsWith("i'm interested in") || lower.StartsWith("im interested in"))
-            {
-                int offset = lower.StartsWith("i'm interested in") ? "i'm interested in".Length : "im interested in".Length;
-                string topic = input.Substring(offset).Trim();
-                _memory.FavouriteTopic = topic;
-                return $"⭐ Got it! I’ll remember that you’re interested in {topic}.";
-            }
-
-            // 2. Handle follow-up phrases
-            if ((lower.Contains("tell me more") || lower.Contains("explain more")) && _memory.HasLastTopic())
-            {
-                return $"🔎 Continuing on {_memory.LastTopic}: {_responder.GetResponse(_memory.LastTopic)}";
-            }
-
-            // --- Step 1: Detect Add Task intent ---
-            if (lower.Contains("add task") || lower.Contains("add a task") ||
-                lower.Contains("create task") || lower.Contains("enable") || lower.Contains("set up") || lower.Contains("i need to"))
-            {
-                string taskName = ExtractTaskName(lower);
-                // prefer instance _taskManager when available
-                try
-                {
-                    _taskManager.AddTask(taskName, "Created from chat", "");
-                }
-                catch
-                {
-                    // fallback to static if present
-                    try { TaskManager.AddTask(taskName); } catch { }
-                }
+                string taskName = ExtractTaskName(input);
+                try { _taskManager.AddTask(taskName, "Created from chat", ""); } catch { try { TaskManager. AddTask(taskName); } catch { } }
                 try { ActivityLogger.Log($"Task added: '{taskName}'"); } catch { }
                 return $"Task added: '{taskName}'. Would you like to set a reminder for this task?";
             }
 
-            // --- Step 2: Detect Reminder intent ---
-            if (lower.Contains("remind me") || lower.Contains("reminder") ||
-                lower.Contains("set a reminder") || lower.Contains("remind me to") || lower.Contains("don't forget"))
+            // --- Step 2: Reminder intent ---
+            if (input.Contains("remind me") || input.Contains("reminder") ||
+                input.Contains("set a reminder") || input.Contains("remind me to") || input.Contains("don't forget"))
             {
-                string reminderText = ExtractReminderText(lower);
+                string reminderText = ExtractReminderText(input);
                 try { ReminderManager.SetReminder(reminderText, DateTime.Now.AddDays(1)); } catch { }
                 try { ActivityLogger.Log($"Reminder set for '{reminderText}' tomorrow."); } catch { }
                 return $"Reminder set for '{reminderText}' on tomorrow's date.";
             }
 
-            // 3. Sentiment detection
-            Sentiment sentiment = _sentiment.Detect(input);
-            string sentimentResponse = _sentiment.GetSentimentResponse(sentiment);
-
-            // --- Step 3: Detect Quiz intent ---
-            if (lower.Contains("start quiz") || lower.Contains("take quiz") ||
-                lower.Contains("test my knowledge") || lower.Contains("quiz me") || lower.Contains("play the game"))
+            // --- Step 3: Quiz intent ---
+            if (input.Contains("start quiz") || input.Contains("take quiz") ||
+                input.Contains("test my knowledge") || input.Contains("quiz me") || input.Contains("play the game"))
             {
                 return "Starting the quiz now! 🎯";
             }
 
-            // --- Step 4: Detect Log intent ---
-            if (lower.Contains("show activity log") || lower.Contains("what have you done") ||
-                lower.Contains("what did you do") || lower.Contains("show log") || lower.Contains("recent actions"))
+            // --- Step 4: Show log intent ---
+            if (input.Contains("show activity log") || input.Contains("what have you done") ||
+                input.Contains("what did you do") || input.Contains("show log") || input.Contains("recent actions"))
             {
                 try { return ActivityLogger.GetRecentLog(); } catch { return "No activity log available."; }
             }
 
-            // 4. Keyword / cybersecurity topic response
-            if (lower.Contains("password") || lower.Contains("phishing") || lower.Contains("privacy") ||
-                lower.Contains("scam") || lower.Contains("malware") || lower.Contains("2fa"))
+            // --- Step 5: Cybersecurity topics (existing Part 2 logic) ---
+            if (input.Contains("password") || input.Contains("phishing") || input.Contains("privacy") ||
+                input.Contains("scam") || input.Contains("malware") || input.Contains("2fa"))
             {
                 return _responder.GetResponse(input);
             }
 
-            // Save last topic for follow-ups
-            _memory.LastTopic = input;
-
-            // 5. Special phrases
-            if (lower.Contains("how are you"))
-                return "🙂 I’m just code, but I’m running smoothly! Thanks for asking.";
-            if (lower.Contains("what can you do"))
-                return "🛡️ I can explain cybersecurity topics like phishing, firewalls, VPNs, and more.";
-            if (lower.Contains("purpose"))
-                return "🎯 My purpose is to help you learn about cybersecurity best practices.";
-
-            string personalisedOpener = _memory.GetPersonalisedOpener();
-
-            // 6. Default fallback
-            string keywordResponse = _responder.GetResponse(input);
-            return $"{sentimentResponse}{personalisedOpener}{keywordResponse}";
+            // --- Step 6: Fallback ---
+            return "I did not quite understand that. Could you rephrase?";
         }
 
         // Helper: crude extraction of task name from input
@@ -228,4 +176,44 @@ namespace CyberSecurityChatbot
         }
     }
 
+    internal class ReminderManager
+    {
+        private record Reminder(string Text, DateTime When);
+
+        private static readonly List<Reminder> _reminders = new List<Reminder>();
+        private static readonly object _lock = new object();
+
+        public static void SetReminder(string text, DateTime when)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                throw new ArgumentException("Reminder text must be provided.", nameof(text));
+
+            // Normalize past times to now
+            if (when < DateTime.Now)
+                when = DateTime.Now;
+
+            var reminder = new Reminder(text, when);
+            lock (_lock)
+            {
+                _reminders.Add(reminder);
+            }
+
+            try
+            {
+                ActivityLogger.Log($"Reminder set: '{text}' for {when}.");
+            }
+            catch
+            {
+                // Swallow logging errors to avoid breaking callers
+            }
+        }
+
+        public static IReadOnlyList<(string Text, DateTime When)> GetReminders()
+        {
+            lock (_lock)
+            {
+                return _reminders.Select(r => (r.Text, r.When)).ToList().AsReadOnly();
+            }
+        }
+    }
 }
