@@ -24,4 +24,41 @@ Features include:
 ## Setup Instructions
 1. Clone this repository:
    ```bash
-   git clone https://github.com/[your-username]/[repo-name].git
+   https://github.com/gcotyelwa19/CyberSecurityApp-GUI
+
+## About JARVIS
+
+JARVIS is a personalized cybersecurity chatbot designed to combine technical functionality with a friendly, interactive experience.  
+Throughout development, I worked closely with Microsoft Copilot to iteratively refine features, polish the GUI, and ensure professional presentation quality.
+
+### Key Highlights
+- **ASCII Art Greeting**: Displays a custom "JARVIS" banner at startup for a polished, professional look.
+- **Personalized Memory**: Remembers the user’s name and uses it in responses, making interactions feel natural.
+- **Sentiment Detection**: Recognizes emotions in user input (e.g., worried, happy) and responds empathetically with emojis.
+- **Conversation Flow**: Handles follow‑up prompts like *“tell me more”* to continue topics smoothly.
+- **Task Assistant**:
+  - Add, complete, and delete tasks with JSON persistence.
+  - Reminder integration with natural phrasing (*“remind me in 5 days”*).
+  - Trigger word “task” shows current task list automatically.
+- **Cybersecurity Quiz**:
+  - 10+ multiple‑choice questions with instant feedback.
+  - Tracks score, shows hints, and displays final results.
+  - Timestamp added when quiz ends for professionalism.
+- **Activity Log**:
+  - Records all actions (tasks, reminders, quiz events) with timestamps.
+  - Displays last 10 entries with “Show More” option.
+- **NLP Intent Detection**:
+  - Handles varied phrasing for tasks, reminders, quiz, and log.
+  - Example: *“Can I take a quiz?”* automatically switches to the Quiz tab.
+- **Polish Features**:
+  - Responds to *“Thank you Jarvis”* with *“It’s my pleasure, [UserName]. Is there anything else I can assist with?”*.
+  - GUI integration across tabs (Chat, Task Assistant, Quiz).
+  - Professional color scheme and layout for clarity.
+
+### Collaboration Notes
+- JARVIS was iteratively improved with Copilot’s guidance:
+  - Debugging name detection and memory storage.
+  - Expanding NLP triggers for natural phrasing.
+  - Adding empathetic responses with emojis.
+  - Integrating Activity Logger across all modules.
+  - Polishing GUI with tab switching and user‑friendly prompts.
