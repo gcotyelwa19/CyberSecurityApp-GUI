@@ -6,31 +6,45 @@ namespace CyberSecurityChatbot
 {
     public class TaskManager
     {
-        private TaskStorageHelper storage = new TaskStorageHelper();
+        private TaskStorageHelper _storage;
+        private ActivityLogger _logger;
+
+        public TaskManager(ActivityLogger logger)
+        {
+            _storage = new TaskStorageHelper();
+            _logger = logger;
+        }
 
         public string AddTask(string title, string description, string reminder)
         {
-            storage.AddTask(title, description, reminder);
-            ActivityLogger.Log($"Task added: {title}");
+            _storage.AddTask(title, description, reminder);
+            _logger.Log($"Task added: '{title}' {(string.IsNullOrEmpty(reminder) ? "(no reminder set)" : $"(Reminder: {reminder})")}");
             return $"Task added with the description '{description}'. Would you like a reminder?";
         }
 
         public List<CyberTask> GetAllTasks()
         {
-            return storage.LoadTasks();
+            return _storage.LoadTasks();
         }
 
         public void MarkAsComplete(int id)
         {
-            storage.MarkAsComplete(id);
-            ActivityLogger.Log($"Task {id} marked complete.");
+            _storage.MarkAsComplete(id);
+            var task = _storage.LoadTasks().Find(t => t.Id == id);
+            if (task != null)
+            {
+                _logger.Log($"Task marked complete: '{task.Title}'");
+            }
         }
 
         public void DeleteTask(int id)
         {
-            storage.DeleteTask(id);
-            ActivityLogger.Log($"Task {id} deleted.");
+            var task = _storage.LoadTasks().Find(t => t.Id == id);
+            if (task != null)
+            {
+                _logger.Log($"Task deleted: '{task.Title}'");
+            }
+            _storage.DeleteTask(id);
         }
     }
-
 }
