@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace CyberSecurityChatbot
 {
-    internal class ChatBot
+    public class ChatBot
     {
         private KeywordResponder _responder;
         private SentimentDetector _sentiment;
@@ -23,8 +23,12 @@ namespace CyberSecurityChatbot
 
         public string GetGreeting()
         {
-            return "Hello! I'm JARVIS your cybersecurity assistant. What’s your name?";
+            if (!string.IsNullOrEmpty(_memory.UserName))
+                return $"Hello {_memory.UserName}! I'm JARVIS your cybersecurity assistant. How can I help today?";
+            else
+                return "Hello! I'm JARVIS your cybersecurity assistant. What’s your name?";
         }
+
 
         public string? GetUserName()
         {
@@ -37,6 +41,15 @@ namespace CyberSecurityChatbot
                 return "Please enter a question.";
 
             string input = userInput.ToLower();
+
+            // --- Step 0: Handle user introducing their name ---
+            if (input.StartsWith("my name is"))
+            {
+                string name = userInput.Substring(11).Trim(); // extract after "my name is"
+                _memory.SaveName(name); // store in MemoryStore
+                _logger.Log($"User introduced themselves as: {name}");
+                return $"Nice to meet you, {name}! How can I assist you today?";
+            }
 
             // --- Step 1: Add Task intent ---
             if (input.Contains("add task") || input.Contains("add a task") ||
@@ -60,8 +73,17 @@ namespace CyberSecurityChatbot
 
             // --- Step 3: Quiz intent ---
             if (input.Contains("start quiz") || input.Contains("take quiz") ||
-                input.Contains("test my knowledge") || input.Contains("quiz me") || input.Contains("play the game"))
+                input.Contains("test my knowledge") || input.Contains("quiz me") || input.Contains("play the game") ||
+                input.Contains("can i take a quiz"))
             {
+                if (input.Contains("can i take a quiz"))
+                {
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        var mainWindow = (MainWindow)System.Windows.Application.Current.MainWindow;
+                        mainWindow.SwitchToQuizTab();
+                    });
+                }
                 return "Starting the quiz now! 🎯";
             }
 
@@ -79,7 +101,15 @@ namespace CyberSecurityChatbot
                 return _responder.GetResponse(input);
             }
 
-            // --- Step 6: Fallback ---
+            // --- Step 6: Thank you intent ---
+            if (input.Contains("thank you jarvis") || input.Contains("thanks jarvis"))
+            {
+                string userName = string.IsNullOrEmpty(_memory.UserName) ? "friend" : _memory.UserName;
+                _logger.Log($"User thanked Jarvis");
+                return $"It's my pleasure, {userName}. Is there anything else I can assist with?";
+            }
+
+            // --- Step 7: Fallback ---
             return "I did not quite understand that. Could you rephrase?";
         }
 

@@ -441,6 +441,12 @@ namespace CyberSecurityChatbot
             SubmitAnswerButton.Visibility = Visibility.Visible;
         }
 
+        public void SwitchToQuizTab()
+        {
+            if (MainTabControl != null)
+                MainTabControl.SelectedIndex = 2; // Quiz tab is the 3rd tab (index starts at 0)
+        }
+
     }
 
 }

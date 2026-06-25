@@ -12,7 +12,7 @@ namespace CyberSecurityChatbot
         Happy
     }
 
-    internal class SentimentDetector
+    public class SentimentDetector
     {
         private Dictionary<Sentiment, List<string>> _triggers;
 

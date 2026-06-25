@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CyberSecurityChatbot
 {
-    internal class KeywordResponder
+    public class KeywordResponder
     {
         private Dictionary<string, List<string>> _responses;
         private static readonly Random _rand = new Random();

@@ -1,9 +1,14 @@
 ﻿namespace CyberSecurityChatbot
 {
-    internal class MemoryStore
+    public class MemoryStore
     {
         // Stores the user's name once they introduce themselves
-        public string UserName { get; set; }
+        public string UserName { get;private set; }
+
+        public void SaveName(string name)
+        {
+            UserName = name;
+        }
 
         // Stores the last topic the user asked about
         public string LastTopic { get; set; }
