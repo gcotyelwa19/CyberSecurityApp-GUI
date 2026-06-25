@@ -10,13 +10,15 @@ namespace CyberSecurityChatbot
         private SentimentDetector _sentiment;
         private MemoryStore _memory;
         private TaskManager _taskManager;
+        private ActivityLogger _logger;
 
         public ChatBot()
         {
             _responder = new KeywordResponder();
             _sentiment = new SentimentDetector();
             _memory = new MemoryStore();
-            _taskManager = new TaskManager();
+            _logger = new ActivityLogger();
+            _taskManager = new TaskManager(_logger);
         }
 
         public string GetGreeting()
@@ -41,8 +43,8 @@ namespace CyberSecurityChatbot
                 input.Contains("create task") || input.Contains("enable") || input.Contains("set up") || input.Contains("i need to"))
             {
                 string taskName = ExtractTaskName(input);
-                try { _taskManager.AddTask(taskName, "Created from chat", ""); } catch { try { TaskManager. AddTask(taskName); } catch { } }
-                try { ActivityLogger.Log($"Task added: '{taskName}'"); } catch { }
+                try { _taskManager.AddTask(taskName, "Created from chat", ""); } catch { }
+                try { _logger.Log($"Task added: '{taskName}'"); } catch { }
                 return $"Task added: '{taskName}'. Would you like to set a reminder for this task?";
             }
 
@@ -52,7 +54,7 @@ namespace CyberSecurityChatbot
             {
                 string reminderText = ExtractReminderText(input);
                 try { ReminderManager.SetReminder(reminderText, DateTime.Now.AddDays(1)); } catch { }
-                try { ActivityLogger.Log($"Reminder set for '{reminderText}' tomorrow."); } catch { }
+                try { _logger.Log($"Reminder set for '{reminderText}' tomorrow."); } catch { }
                 return $"Reminder set for '{reminderText}' on tomorrow's date.";
             }
 
@@ -67,7 +69,7 @@ namespace CyberSecurityChatbot
             if (input.Contains("show activity log") || input.Contains("what have you done") ||
                 input.Contains("what did you do") || input.Contains("show log") || input.Contains("recent actions"))
             {
-                try { return ActivityLogger.GetRecentLog(); } catch { return "No activity log available."; }
+                try { return _logger.GetRecentLog(); } catch { return "No activity log available."; }
             }
 
             // --- Step 5: Cybersecurity topics (existing Part 2 logic) ---
@@ -200,7 +202,8 @@ namespace CyberSecurityChatbot
 
             try
             {
-                ActivityLogger.Log($"Reminder set: '{text}' for {when}.");
+                // Note: Static context, cannot access instance logger
+                // Logging is handled by ChatBot.ProcessInput instead
             }
             catch
             {
