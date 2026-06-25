@@ -1,4 +1,4 @@
-# CyberSecurityApp GUI (Part 2)
+# CyberSecurityApp GUI (POE Part 2)
 
 An interactive WPF chatbot application that teaches cybersecurity concepts through keyword recognition, random responses, sentiment detection, and memory. This project extends the Part 1 console app into a fully functional GUI with voice greeting and ASCII art.
 
