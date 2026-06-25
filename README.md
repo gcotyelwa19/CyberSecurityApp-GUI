@@ -7,7 +7,7 @@ An interactive WPF chatbot application that teaches cybersecurity concepts throu
  Author
 **Gcotyelwa Sivuyile Mbuti**  
 Student Number: [10468229]  
-East London, South Africa  
+Gqeberha, South Africa  
 
 ---
 
@@ -42,7 +42,7 @@ CyberSecurityApp-GUI
 
 ├── AssemblyInfo.cs
 
-├── greeting(1).wav
+├── greeting(2).wav
 
 ├── README.md
 
