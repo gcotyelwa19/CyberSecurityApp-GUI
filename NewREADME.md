@@ -62,3 +62,6 @@ Throughout development, I worked closely with Microsoft Copilot to iteratively r
   - Adding empathetic responses with emojis.
   - Integrating Activity Logger across all modules.
   - Polishing GUI with tab switching and user‑friendly prompts.
+ 
+  - Screenshot of GUI Application running <img width="960" height="564" alt="JARVIS-GUI" src="https://github.com/user-attachments/assets/7d4a4f24-8384-4e94-b563-afa74778ded2" />
+
